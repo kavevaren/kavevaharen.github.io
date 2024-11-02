@@ -1,0 +1,3 @@
+C:/Users/jonat/CLionProjects/Ages Rescrictions/cmake-build-debug/CMakeFiles/Ages_Rescrictions.dir
+C:/Users/jonat/CLionProjects/Ages Rescrictions/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/jonat/CLionProjects/Ages Rescrictions/cmake-build-debug/CMakeFiles/rebuild_cache.dir
