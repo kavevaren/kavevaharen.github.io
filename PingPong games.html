@@ -24,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* Floating bubbles animation */
+        
         .bubbles div {
             position: absolute;
             width: 20px;
@@ -111,7 +111,7 @@
 </head>
 <body>
     <div class="game-container">
-        <!-- Floating bubbles -->
+        
         <div class="bubbles">
             <div style="left: 10%; animation-delay: 0s"></div>
             <div style="left: 30%; animation-delay: 1s"></div>
@@ -156,11 +156,11 @@
         }
 
         function drawPaddles() {
-            // Player 1 paddle
+            
             ctx.fillStyle = '#6699ff';
             ctx.fillRect(20, player1.y, paddleWidth, paddleHeight);
             
-            // Player 2 paddle
+          
             ctx.fillStyle = '#9966ff';
             ctx.fillRect(765, player2.y, paddleWidth, paddleHeight);
         }
@@ -169,28 +169,27 @@
         ball.x += ball.speedX;
         ball.y += ball.speedY;
 
-        // Wall collision
         if(ball.y + ball.size > 500 || ball.y - ball.size < 0) {
             ball.speedY = -ball.speedY;
         }
 
-        // Paddle collision - changed speed multiplier from 1.1 to 1.05
+      
         if(ball.x - ball.size < 35 && 
            ball.y > player1.y && 
            ball.y < player1.y + paddleHeight) {
-            ball.speedX = -ball.speedX * 1.05; // ⬅️ Changed here
+            ball.speedX = -ball.speedX * 1.05;
         }
 
         if(ball.x + ball.size > 765 && 
            ball.y > player2.y && 
            ball.y < player2.y + paddleHeight) {
-            ball.speedX = -ball.speedX * 1.05; // ⬅️ Changed here
+            ball.speedX = -ball.speedX * 1.05; 
         }
 
-        // ... (rest of the code remains the same)
+     
          }
 
-            // Score points
+            
             if(ball.x < 0) {
                 player2.score++;
                 resetBall();
@@ -228,7 +227,7 @@
         }
 
         function moveComputer() {
-            // Simple AI for player 2
+          
             if(ball.y > player2.y + paddleHeight/2) {
                 player2.y += 4;
             } else {
@@ -243,7 +242,7 @@
             resetBall();
         }
 
-        // Player controls
+    
         document.addEventListener('keydown', (e) => {
             if(e.key === 'ArrowUp' && player1.y > 0) {
                 player1.y -= 20;
@@ -253,7 +252,7 @@
             }
         });
 
-        // Start the game loop
+     
         gameLoop();
     </script>
 </body>
