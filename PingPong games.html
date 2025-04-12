@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fun Kids Ping Pong!</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle, #ff66ff, #9966ff, #6699ff);
+            font-family: 'Comic Sans MS', cursive;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 102, 255, 0.5);
+            overflow: hidden;
+        }
+
+        /* Floating bubbles animation */
+        .bubbles div {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 4s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(500px); }
+            100% { transform: translateY(-100px); }
+        }
+
+        #gameCanvas {
+            border-radius: 20px;
+        }
+
+        .score {
+            position: absolute;
+            top: 20px;
+            font-size: 40px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        #player1Score {
+            left: 50px;
+            color: #ff66ff;
+        }
+
+        #player2Score {
+            right: 50px;
+            color: #6699ff;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .start-btn {
+            padding: 15px 30px;
+            font-size: 24px;
+            background: #ff66ff;
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 102, 255, 0.5);
+        }
+
+        .start-btn:hover {
+            transform: scale(1.1);
+            background: #9966ff;
+        }
+
+        .animated-border {
+            position: absolute;
+            pointer-events: none;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            width: 100%;
+            height: 100%;
+            animation: rotate 8s infinite linear;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Floating bubbles -->
+        <div class="bubbles">
+            <div style="left: 10%; animation-delay: 0s"></div>
+            <div style="left: 30%; animation-delay: 1s"></div>
+            <div style="left: 50%; animation-delay: 2s"></div>
+            <div style="left: 70%; animation-delay: 3s"></div>
+            <div style="left: 90%; animation-delay: 4s"></div>
+        </div>
+
+        <div class="animated-border"></div>
+        <div id="player1Score" class="score">0</div>
+        <div id="player2Score" class="score">0</div>
+        
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div class="controls">
+            <button class="start-btn" onclick="startGame()">Start Game!</button>
+            <p>Use ↑ and ↓ arrows to move</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const player1ScoreElem = document.getElementById('player1Score');
+        const player2ScoreElem = document.getElementById('player2Score');
+
+        // Game objects
+        let ball = { x: 400, y: 250, speedX: 5, speedY: 5, size: 15 };
+        let player1 = { y: 200, score: 0 };
+        let player2 = { y: 200, score: 0 };
+        let gameRunning = false;
+        const paddleHeight = 100;
+        const paddleWidth = 15;
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff66ff';
+            ctx.shadowColor = '#ff66ff';
+            ctx.shadowBlur = 20;
+            ctx.fill();
+        }
+
+        function drawPaddles() {
+            // Player 1 paddle
+            ctx.fillStyle = '#6699ff';
+            ctx.fillRect(20, player1.y, paddleWidth, paddleHeight);
+            
+            // Player 2 paddle
+            ctx.fillStyle = '#9966ff';
+            ctx.fillRect(765, player2.y, paddleWidth, paddleHeight);
+        }
+
+        function moveBall() {
+        ball.x += ball.speedX;
+        ball.y += ball.speedY;
+
+        // Wall collision
+        if(ball.y + ball.size > 500 || ball.y - ball.size < 0) {
+            ball.speedY = -ball.speedY;
+        }
+
+        // Paddle collision - changed speed multiplier from 1.1 to 1.05
+        if(ball.x - ball.size < 35 && 
+           ball.y > player1.y && 
+           ball.y < player1.y + paddleHeight) {
+            ball.speedX = -ball.speedX * 1.05; // ⬅️ Changed here
+        }
+
+        if(ball.x + ball.size > 765 && 
+           ball.y > player2.y && 
+           ball.y < player2.y + paddleHeight) {
+            ball.speedX = -ball.speedX * 1.05; // ⬅️ Changed here
+        }
+
+        // ... (rest of the code remains the same)
+         }
+
+            // Score points
+            if(ball.x < 0) {
+                player2.score++;
+                resetBall();
+            }
+            if(ball.x > 800) {
+                player1.score++;
+                resetBall();
+            }
+        
+
+        function resetBall() {
+            ball.x = 400;
+            ball.y = 250;
+            ball.speedX = 2 * (Math.random() > 0.5 ? 1 : -1);
+            ball.speedY = 2 * (Math.random() > 0.5 ? 1 : -1);
+            updateScore();
+        }
+
+        function updateScore() {
+            player1ScoreElem.textContent = player1.score;
+            player2ScoreElem.textContent = player2.score;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, 800, 500);
+            
+            if(gameRunning) {
+                moveBall();
+                moveComputer();
+            }
+            
+            drawPaddles();
+            drawBall();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function moveComputer() {
+            // Simple AI for player 2
+            if(ball.y > player2.y + paddleHeight/2) {
+                player2.y += 4;
+            } else {
+                player2.y -= 4;
+            }
+        }
+
+        function startGame() {
+            gameRunning = true;
+            player1.score = 0;
+            player2.score = 0;
+            resetBall();
+        }
+
+        // Player controls
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowUp' && player1.y > 0) {
+                player1.y -= 20;
+            }
+            if(e.key === 'ArrowDown' && player1.y < 400) {
+                player1.y += 20;
+            }
+        });
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
