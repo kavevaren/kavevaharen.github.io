@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Poker Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0a5c36;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .table {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: #0d723b;
+            border-radius: 200px;
+            border: 15px solid #5d4037;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .player-area {
+            position: absolute;
+            width: 150px;
+            text-align: center;
+        }
+
+        .player-area h3 {
+            margin: 5px 0;
+        }
+
+        .player-cards {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .card {
+            width: 80px;
+            height: 120px;
+            background-color: white;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: black;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .card.red {
+            color: red;
+        }
+
+        .card.black {
+            color: black;
+        }
+
+        .card-back {
+            background: repeating-linear-gradient(
+                45deg,
+                #d00,
+                #d00 10px,
+                #a00 10px,
+                #a00 20px
+            );
+            color: white;
+        }
+
+        .card-value {
+            position: absolute;
+            font-size: 16px;
+        }
+
+        .top-left {
+            top: 5px;
+            left: 5px;
+        }
+
+        .bottom-right {
+            bottom: 5px;
+            right: 5px;
+            transform: rotate(180deg);
+        }
+
+        .center-symbol {
+            font-size: 40px;
+        }
+
+        .player1 {
+            bottom: 20px;
+        }
+
+        .player2 {
+            top: 20px;
+        }
+
+        .player3 {
+            left: 20px;
+        }
+
+        .player4 {
+            right: 20px;
+        }
+
+        .community-cards {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #ffc107;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ffca28;
+        }
+
+        button:disabled {
+            background-color: #9e9e9e;
+            cursor: not-allowed;
+        }
+
+        .hand-strength {
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .pot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        @keyframes dealCard {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .dealing {
+            animation: dealCard 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Random Poker Game</h1>
+        
+        <div class="table">
+            <div class="pot">Pot: $<span id="pot">0</span></div>
+            
+            <div class="player-area player1">
+                <h3>You</h3>
+                <div class="player-cards">
+                    <div class="card card-back" id="player-card-1"></div>
+                    <div class="card card-back" id="player-card-2"></div>
+                </div>
+                <div class="hand-strength" id="player-hand"></div>
+            </div>
+            
+            <div class="player-area player2">
+                <h3>Player 2</h3>
+                <div class="player-cards">
+                    <div class="card card-back"></div>
+                    <div class="card card-back"></div>
+                </div>
+                <div class="hand-strength" id="player2-hand"></div>
+            </div>
+            
+            <div class="player-area player3">
+                <h3>Player 3</h3>
+                <div class="player-cards">
+                    <div class="card card-back"></div>
+                    <div class="card card-back"></div>
+                </div>
+                <div class="hand-strength" id="player3-hand"></div>
+            </div>
+            
+            <div class="player-area player4">
+                <h3>Player 4</h3>
+                <div class="player-cards">
+                    <div class="card card-back"></div>
+                    <div class="card card-back"></div>
+                </div>
+                <div class="hand-strength" id="player4-hand"></div>
+            </div>
+            
+            <div class="community-cards">
+                <div class="card card-back" id="flop1"></div>
+                <div class="card card-back" id="flop2"></div>
+                <div class="card card-back" id="flop3"></div>
+                <div class="card card-back" id="turn"></div>
+                <div class="card card-back" id="river"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="deal-btn">Deal Hand</button>
+            <button id="flop-btn" disabled>Flop</button>
+            <button id="turn-btn" disabled>Turn</button>
+            <button id="river-btn" disabled>River</button>
+            <button id="showdown-btn" disabled>Showdown</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game elements
+            const dealBtn = document.getElementById('deal-btn');
+            const flopBtn = document.getElementById('flop-btn');
+            const turnBtn = document.getElementById('turn-btn');
+            const riverBtn = document.getElementById('river-btn');
+            const showdownBtn = document.getElementById('showdown-btn');
+            const potDisplay = document.getElementById('pot');
+            
+            // Card elements
+            const playerCards = [
+                document.getElementById('player-card-1'),
+                document.getElementById('player-card-2')
+            ];
+            const flopCards = [
+                document.getElementById('flop1'),
+                document.getElementById('flop2'),
+                document.getElementById('flop3')
+            ];
+            const turnCard = document.getElementById('turn');
+            const riverCard = document.getElementById('river');
+            
+            // Hand strength displays
+            const handDisplays = [
+                document.getElementById('player-hand'),
+                document.getElementById('player2-hand'),
+                document.getElementById('player3-hand'),
+                document.getElementById('player4-hand')
+            ];
+            
+            // Game state
+            let deck = [];
+            let playerHands = [[], [], [], []];
+            let communityCards = [];
+            let pot = 0;
+            
+            // Initialize the game
+            initGame();
+            
+            function initGame() {
+                buildDeck();
+                pot = 100 * (Math.floor(Math.random() * 10) + 1);
+                updatePot();
+            }
+            
+            function buildDeck() {
+                const suits = ['♥', '♦', '♠', '♣'];
+                const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+                
+                deck = [];
+                
+                for (let suit of suits) {
+                    for (let value of values) {
+                        deck.push({
+                            suit: suit,
+                            value: value,
+                            color: (suit === '♥' || suit === '♦') ? 'red' : 'black'
+                        });
+                    }
+                }
+                
+                // Shuffle the deck
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+            }
+            
+            function updatePot() {
+                potDisplay.textContent = pot;
+            }
+            
+            function dealCards() {
+                // Reset hands and community cards
+                playerHands = [[], [], [], []];
+                communityCards = [];
+                
+                // Deal 2 cards to each player
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        playerHands[j].push(deck.pop());
+                    }
+                }
+                
+                // Display player's cards
+                displayPlayerCards();
+                
+                // Update UI
+                dealBtn.disabled = true;
+                flopBtn.disabled = false;
+                
+                // Reset community cards display
+                for (let card of flopCards) {
+                    card.className = 'card card-back';
+                    card.innerHTML = '';
+                }
+                turnCard.className = 'card card-back';
+                turnCard.innerHTML = '';
+                riverCard.className = 'card card-back';
+                riverCard.innerHTML = '';
+                
+                // Reset hand displays
+                for (let display of handDisplays) {
+                    display.textContent = '';
+                }
+            }
+            
+            function displayPlayerCards() {
+                for (let i = 0; i < 2; i++) {
+                    const card = playerHands[0][i];
+                    playerCards[i].className = `card ${card.color} dealing`;
+                    playerCards[i].innerHTML = `
+                        <div class="card-value top-left">${card.value}${card.suit}</div>
+                        <div class="center-symbol">${card.suit}</div>
+                        <div class="card-value bottom-right">${card.value}${card.suit}</div>
+                    `;
+                }
+            }
+            
+            function dealFlop() {
+                // Burn a card
+                deck.pop();
+                
+                // Deal 3 community cards
+                for (let i = 0; i < 3; i++) {
+                    const card = deck.pop();
+                    communityCards.push(card);
+                    displayCommunityCard(flopCards[i], card);
+                }
+                
+                // Update UI
+                flopBtn.disabled = true;
+                turnBtn.disabled = false;
+                
+                // Evaluate hands
+                evaluateHands();
+            }
+            
+            function dealTurn() {
+                // Burn a card
+                deck.pop();
+                
+                // Deal 1 community card
+                const card = deck.pop();
+                communityCards.push(card);
+                displayCommunityCard(turnCard, card);
+                
+                // Update UI
+                turnBtn.disabled = true;
+                riverBtn.disabled = false;
+                
+                // Evaluate hands
+                evaluateHands();
+            }
+            
+            function dealRiver() {
+                // Burn a card
+                deck.pop();
+                
+                // Deal 1 community card
+                const card = deck.pop();
+                communityCards.push(card);
+                displayCommunityCard(riverCard, card);
+                
+                // Update UI
+                riverBtn.disabled = true;
+                showdownBtn.disabled = false;
+                
+                // Evaluate hands
+                evaluateHands();
+            }
+            
+            function displayCommunityCard(element, card) {
+                element.className = `card ${card.color} dealing`;
+                element.innerHTML = `
+                    <div class="card-value top-left">${card.value}${card.suit}</div>
+                    <div class="center-symbol">${card.suit}</div>
+                    <div class="card-value bottom-right">${card.value}${card.suit}</div>
+                `;
+            }
+            
+            function showdown() {
+                // Show all players' cards
+                for (let i = 1; i < 4; i++) {
+                    const playerCardElements = document.querySelectorAll(`.player${i+1} .player-cards .card`);
+                    for (let j = 0; j < 2; j++) {
+                        const card = playerHands[i][j];
+                        playerCardElements[j].className = `card ${card.color} dealing`;
+                        playerCardElements[j].innerHTML = `
+                            <div class="card-value top-left">${card.value}${card.suit}</div>
+                            <div class="center-symbol">${card.suit}</div>
+                            <div class="card-value bottom-right">${card.value}${card.suit}</div>
+                        `;
+                    }
+                }
+                
+                // Evaluate hands one last time
+                evaluateHands();
+                
+                // Determine winner
+                determineWinner();
+                
+                // Update UI
+                showdownBtn.disabled = true;
+                dealBtn.disabled = false;
+                
+                // Rebuild deck for next hand
+                buildDeck();
+            }
+            
+            function evaluateHands() {
+                for (let i = 0; i < 4; i++) {
+                    if (playerHands[i].length > 0) {
+                        const handStrength = evaluatePokerHand([...playerHands[i], ...communityCards]);
+                        handDisplays[i].textContent = handStrength;
+                    }
+                }
+            }
+            
+            function evaluatePokerHand(cards) {
+                if (cards.length < 5) return "Evaluating...";
+                
+                // Count card values and suits
+                const valueCount = {};
+                const suitCount = {};
+                
+                for (let card of cards) {
+                    valueCount[card.value] = (valueCount[card.value] || 0) + 1;
+                    suitCount[card.suit] = (suitCount[card.suit] || 0) + 1;
+                }
+                
+                // Check for flush
+                const flushSuit = Object.keys(suitCount).find(suit => suitCount[suit] >= 5);
+                const isFlush = !!flushSuit;
+                
+                // Get card ranks (convert face cards to numbers)
+                const cardRanks = cards.map(card => {
+                    switch(card.value) {
+                        case 'A': return 14;
+                        case 'K': return 13;
+                        case 'Q': return 12;
+                        case 'J': return 11;
+                        case '10': return 10;
+                        default: return parseInt(card.value);
+                    }
+                }).sort((a, b) => b - a);
+                
+                // Check for straight
+                let isStraight = false;
+                for (let i = 0; i <= cardRanks.length - 5; i++) {
+                    if (cardRanks[i] - cardRanks[i+4] === 4) {
+                        isStraight = true;
+                        break;
+                    }
+                }
+                
+                // Check for low straight (A-2-3-4-5)
+                if (cardRanks.includes(14) && cardRanks.includes(5) && cardRanks.includes(4) && 
+                    cardRanks.includes(3) && cardRanks.includes(2)) {
+                    isStraight = true;
+                }
+                
+                // Check for straight flush or royal flush
+                if (isFlush && isStraight) {
+                    if (cardRanks[0] === 14 && cardRanks[1] === 13 && cardRanks[2] === 12 && 
+                        cardRanks[3] === 11 && cardRanks[4] === 10) {
+                        return "Royal Flush!";
+                    }
+                    return "Straight Flush!";
+                }
+                
+                // Check for four of a kind
+                const fourOfAKind = Object.keys(valueCount).find(value => valueCount[value] === 4);
+                if (fourOfAKind) return "Four of a Kind";
+                
+                // Check for full house
+                const threeOfAKind = Object.keys(valueCount).find(value => valueCount[value] === 3);
+                const pairs = Object.keys(valueCount).filter(value => valueCount[value] === 2);
+                if (threeOfAKind && pairs.length >= 1) return "Full House";
+                
+                // Check for flush
+                if (isFlush) return "Flush";
+                
+                // Check for straight
+                if (isStraight) return "Straight";
+                
+                // Check for three of a kind
+                if (threeOfAKind) return "Three of a Kind";
+                
+                // Check for two pair
+                if (pairs.length >= 2) return "Two Pair";
+                
+                // Check for pair
+                if (pairs.length === 1) return "Pair";
+                
+                // High card
+                return "High Card";
+            }
+            
+            function determineWinner() {
+                // In a real game, you would compare all hands and determine the winner
+                // For this demo, we'll just pick a random winner
+                const winner = Math.floor(Math.random() * 4);
+                handDisplays[winner].textContent += " - WINNER!";
+                pot += 50;
+                updatePot();
+            }
+            
+            // Event listeners
+            dealBtn.addEventListener('click', dealCards);
+            flopBtn.addEventListener('click', dealFlop);
+            turnBtn.addEventListener('click', dealTurn);
+            riverBtn.addEventListener('click', dealRiver);
+            showdownBtn.addEventListener('click', showdown);
+        });
+    </script>
+</body>
+</html>
